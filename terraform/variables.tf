@@ -45,3 +45,16 @@ variable "min_capacity" {
   type        = number
   default     = 1
 }
+
+# LoadBalancer Configuration (Optional)
+variable "enable_load_balancer_controller" {
+  description = "Enable AWS Load Balancer Controller"
+  type        = bool
+  default     = false # Set to true to enable load balancer controller
+}
+
+variable "load_balancer_controller_version" {
+  description = "AWS Load Balancer Controller Helm chart version"
+  type        = string
+  default     = "1.4.4"
+}
