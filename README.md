@@ -1,141 +1,238 @@
-# **🚀 Deploying Super Mario on AWS EKS using Terraform**  
+# 🚀 Super Mario on AWS EKS with Terraform & GitHub Actions
 
-Super Mario is a legendary game we all cherish! In this project, we will deploy **Super Mario** on **Amazon EKS (Elastic Kubernetes Service)** using **Terraform** and manage infrastructure with AWS resources.  
+Deploy the legendary Super Mario game on Amazon EKS using Infrastructure as Code (Terraform) and automated CI/CD with GitHub Actions.
 
-![Super Mario](https://imgur.com/Njqsei9.gif)  
+![Super Mario](https://imgur.com/Njqsei9.gif)
 
----
+## 📋 Table of Contents
 
-## 📌 **Project Overview**
+- [Project Overview](#-project-overview)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Prerequisites](#-prerequisites)
+- [Quick Start](#-quick-start)
+- [Manual Deployment](#-manual-deployment)
+- [CI/CD Pipeline](#-cicd-pipeline)
+- [Configuration](#-configuration)
+- [Monitoring & Troubleshooting](#-monitoring--troubleshooting)
+- [Cleanup](#-cleanup)
 
-This project provisions an **EKS cluster** on AWS and deploys the **Super Mario game** using **Terraform** and **Kubernetes manifests**. The deployment includes:
+## 🎯 Project Overview
 
-- ✅ Amazon EKS Cluster provisioning
-- ✅ Terraform Infrastructure as Code (IaC)
-- ✅ Kubernetes Deployment & Service for Super Mario
-- ✅ AWS S3 Backend for Terraform state management
-- ✅ IAM roles & policies for EKS & worker nodes
+This project demonstrates modern DevOps practices by deploying a containerized Super Mario game on AWS EKS using:
 
----
+- **Infrastructure as Code**: Terraform for AWS resource provisioning
+- **Container Orchestration**: Kubernetes on Amazon EKS
+- **CI/CD Automation**: GitHub Actions for automated deployments
+- **Best Practices**: Security, scalability, and monitoring
 
-## **📁 Project Structure**  
+## 🏗️ Architecture
 
-```bash
-📂 DEPLOYMENT-OF-SUPER-MARIO
-│── 📂 EKS-TF               # Terraform configuration files for AWS EKS
-│   ├── backend.tf          # S3 backend for Terraform state management
-│   ├── main.tf             # AWS EKS Cluster and Node Group definition
-│   ├── provider.tf         # AWS provider configuration
-│   ├── deployment.yaml     # Kubernetes Deployment for Super Mario
-│   ├── service.yaml        # Kubernetes Service for exposing Super Mario app
-│── 📄 README.md            # Project documentation
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   GitHub Repo   │───▶│  GitHub Actions  │───▶│   AWS Account   │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                │                        │
+                                ▼                        ▼
+                       ┌──────────────────┐    ┌─────────────────┐
+                       │    Terraform     │───▶│   EKS Cluster   │
+                       │   (Infrastructure)│    │  (Kubernetes)   │
+                       └──────────────────┘    └─────────────────┘
+                                                        │
+                                                        ▼
+                                               ┌─────────────────┐
+                                               │  Super Mario    │
+                                               │   Application   │
+                                               └─────────────────┘
 ```
 
----
+## 📁 Project Structure
 
-## **📌 Prerequisites**  
+```
+deploy-SuperMario-on-K8s-with-terraform/
+├── terraform/                    # Terraform infrastructure code
+│   ├── main.tf                  # EKS cluster and node group
+│   ├── provider.tf              # AWS provider configuration
+│   ├── backend.tf               # S3 backend for state management
+│   ├── variables.tf             # Input variables
+│   └── outputs.tf               # Output values
+├── k8s-manifests/               # Kubernetes deployment files
+│   ├── deployment.yaml          # Super Mario deployment
+│   └── service.yaml             # LoadBalancer service
+├── .github/workflows/           # CI/CD pipeline
+│   └── deploy.yml               # GitHub Actions workflow
+└── README.md                    # Project documentation
+```
 
-Before proceeding, ensure you have the following installed:
+## 📋 Prerequisites
 
-- ✅ **Terraform** (>=1.3.0)  
-- ✅ **AWS CLI** (Configured with proper credentials)  
-- ✅ **kubectl** (For managing Kubernetes resources)  
-- ✅ **Docker** (For containerization)  
+### Required Tools
+- **Terraform** >= 1.3.0
+- **AWS CLI** >= 2.0
+- **kubectl** >= 1.24
+- **Git**
 
----
+### AWS Requirements
+- AWS Account with appropriate permissions
+- S3 bucket for Terraform state (update `terraform/backend.tf`)
+- DynamoDB table for state locking (optional but recommended)
 
-## **🛠️ Setup & Deployment**  
+### GitHub Secrets (for CI/CD)
+Configure these secrets in your GitHub repository:
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
 
-### **1️⃣ Clone the Repository**  
+## 🚀 Quick Start
 
+### 1. Clone Repository
 ```bash
 git clone https://github.com/Getdzidon/deploy-SuperMario-on-K8s-with-terraform.git
-cd deploy-SuperMario-on-K8s-with-terrafor/EKS-TF
+cd deploy-SuperMario-on-K8s-with-terraform
 ```
 
-### **2️⃣ Initialize & Apply Terraform**  
-
+### 2. Configure AWS Credentials
 ```bash
-terraform init      # Initialize Terraform backend
-terraform plan      # Preview infrastructure changes
-terraform apply -auto-approve  # Deploy to AWS
+aws configure
+# Enter your AWS Access Key ID, Secret Access Key, and region
 ```
 
-### **3️⃣ Configure Kubernetes Context**  
+### 3. Update Backend Configuration
+Edit `terraform/backend.tf` with your S3 bucket details:
+```hcl
+terraform {
+  backend "s3" {
+    bucket = "your-terraform-state-bucket"
+    key    = "eks/terraform.tfstate"
+    region = "your-region"
+  }
+}
+```
 
+### 4. Deploy with GitHub Actions
+Push to main branch to trigger automated deployment, or deploy manually (see below).
+
+## 🛠️ Manual Deployment
+
+### Step 1: Deploy Infrastructure
+```bash
+cd terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+### Step 2: Configure kubectl
 ```bash
 aws eks update-kubeconfig --name EKS_CLOUD --region ap-south-1
 ```
 
-### **4️⃣ Deploy Super Mario Application**  
-
+### Step 3: Deploy Application
 ```bash
-kubectl apply -f deployment.yaml
-kubectl apply -f service.yaml
+kubectl apply -f k8s-manifests/deployment.yaml
+kubectl apply -f k8s-manifests/service.yaml
 ```
 
-### **5️⃣ Access the Application**  
-
-Once deployed, get the external LoadBalancer URL:  
-
+### Step 4: Access Application
 ```bash
-kubectl get services mario-service
+kubectl get service mario-service
+# Use the EXTERNAL-IP to access Super Mario in your browser
 ```
 
-Access **Super Mario** in your browser using the displayed URL.
+## 🔄 CI/CD Pipeline
+
+The GitHub Actions workflow automatically:
+
+1. **Terraform Plan**: Validates infrastructure changes
+2. **Terraform Apply**: Deploys infrastructure (on main branch)
+3. **Kubernetes Deploy**: Applies K8s manifests
+4. **Health Check**: Verifies deployment status
+
+### Workflow Triggers
+- Push to `main` branch (full deployment)
+- Pull requests (plan only)
+- Manual trigger via GitHub UI
+
+## ⚙️ Configuration
+
+### Terraform Variables
+Customize deployment in `terraform/variables.tf`:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `aws_region` | AWS region | `ap-south-1` |
+| `cluster_name` | EKS cluster name | `EKS_CLOUD` |
+| `instance_types` | EC2 instance types | `["t3.medium"]` |
+| `desired_capacity` | Desired worker nodes | `2` |
+| `max_capacity` | Maximum worker nodes | `3` |
+| `min_capacity` | Minimum worker nodes | `1` |
+
+### Kubernetes Configuration
+- **Replicas**: 3 pods for high availability
+- **Resources**: CPU and memory limits configured
+- **Health Checks**: Liveness and readiness probes
+- **Load Balancer**: AWS Network Load Balancer
+
+## 📊 Monitoring & Troubleshooting
+
+### Check Cluster Status
+```bash
+kubectl get nodes
+kubectl get pods
+kubectl get services
+```
+
+### View Logs
+```bash
+kubectl logs -l app=mario
+kubectl describe pod <pod-name>
+```
+
+### Common Issues
+1. **Pods not starting**: Check resource limits and node capacity
+2. **Service not accessible**: Verify security groups and NLB configuration
+3. **Terraform errors**: Ensure AWS permissions and S3 bucket access
+
+## 🧹 Cleanup
+
+### Remove Kubernetes Resources
+```bash
+kubectl delete -f k8s-manifests/
+```
+
+### Destroy Infrastructure
+```bash
+cd terraform
+terraform destroy
+```
+
+## 🔗 Resources
+
+- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+- [Amazon EKS User Guide](https://docs.aws.amazon.com/eks/latest/userguide/)
+- [Kubernetes Documentation](https://kubernetes.io/docs/)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 👨‍💻 Author
+
+**Getdzidon** - [GitHub](https://github.com/Getdzidon/) | [LinkedIn](https://www.linkedin.com/in/donatus-dziedzorm-d-64842941/)
 
 ---
 
-## **🎯 Project Highlights**
-
-- **AWS EKS**: Managed Kubernetes cluster for scalable deployment.  
-- **Terraform**: Infrastructure as Code (IaC) for automated provisioning.  
-- **Kubernetes**: Ensures containerized deployment of the game.  
-- **AWS S3 Backend**: Remote state management for Terraform.  
+⭐ **If you find this project helpful, please give it a star!**
 
 ---
 
-## **🔗 Resources**
+### 📧 Connect with me:
 
-- **Terraform Docs**: [https://developer.hashicorp.com/terraform/docs](https://developer.hashicorp.com/terraform/docs)  
-- **AWS EKS Docs**: [https://docs.aws.amazon.com/eks/latest/userguide](https://docs.aws.amazon.com/eks/latest/userguide)  
-- **Kubernetes Docs**: [https://kubernetes.io/docs/home/](https://kubernetes.io/docs/home/)  
-
----
-
-## **📢 Credits & Acknowledgments**  
-
-This project is inspired by the **Super Mario** game, and it demonstrates real-world **DevOps practices** using AWS, Terraform, and Kubernetes.  
-
-
-🚀 *Happy Gaming & DevOps-ing!* 🎮
-
----
-
-## 🤝 **Contributing**  
-
-Contributions are welcome! If you'd like to improve this project, feel free to submit a pull request.  
-
----
-
-## **Hit the Star!** ⭐
-
-**If you find this repository helpful and plan to use it for learning, please give it a star. Your support is appreciated!**
-
----
-
-## 🛠️ **Author & Community**  
-
-This project is crafted by **[Getdzidon](https://github.com/Getdzidon/)** 💡.  
-Feel free to share your thoughts.  
-
----
-
-### 📧 **Connect with me:**
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/donatus-dziedzorm-d-64842941/) [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Getdzidon/) 
-
----
-
-### 📢 **Credit**  
-https://github.com/NotHarshhaa/Deployment-of-super-Mario-on-Kubernetes-using-terraform
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/donatus-dziedzorm-d-64842941/) [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Getdzidon/)

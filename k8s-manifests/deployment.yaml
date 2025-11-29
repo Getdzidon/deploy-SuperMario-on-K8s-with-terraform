@@ -5,7 +5,7 @@ metadata:
   labels:
     app: mario
 spec:
-  replicas: 3  # Increased replicas for better scalability
+  replicas: 3
   selector:
     matchLabels:
       app: mario
@@ -19,20 +19,20 @@ spec:
         image: sevenajay/mario:latest 
         ports:
         - containerPort: 80
-        resources:  # Added resource limits for better stability
+        resources:
           requests:
             cpu: "100m"
             memory: "128Mi"
           limits:
             cpu: "250m"
             memory: "256Mi"
-        livenessProbe:  # Added liveness probe for better monitoring
+        livenessProbe:
           httpGet:
             path: /
             port: 80
           initialDelaySeconds: 5
           periodSeconds: 10
-        readinessProbe:  # Added readiness probe to handle traffic only when ready
+        readinessProbe:
           httpGet:
             path: /
             port: 80
