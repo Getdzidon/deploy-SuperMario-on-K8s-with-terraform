@@ -1,8 +1,11 @@
 # 🚀 Super Mario on AWS EKS with Terraform & GitHub Actions
-## By Donatus D. Dzissah
-# This repository can be used as a deployment Template of docker images to AWS K8s 
-## 👉 See [TEMPLATE-USAGE.md](./TEMPLATE-USAGE.md) for detailed instructions
-## Shout out to [sevenajay](https://hub.docker.com/u/sevenajay) for the super mario image
+
+**By Donatus D. Dzissah**
+
+> 🔄 **This repository can be used as a deployment template for any Docker image to AWS EKS**  
+> 👉 See [TEMPLATE-USAGE.md](./TEMPLATE-USAGE.md) for detailed instructions
+
+*Shout out to [sevenajay](https://hub.docker.com/u/sevenajay) for the Super Mario Docker image*
 
 Deploy the legendary Super Mario game on Amazon EKS using Infrastructure as Code (Terraform) and automated CI/CD with GitHub Actions.
 
