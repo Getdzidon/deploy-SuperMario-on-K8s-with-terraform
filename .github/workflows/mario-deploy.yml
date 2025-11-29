@@ -9,6 +9,7 @@ on:
       - '*.md'
       - 'setup-backend.*'
       - '.gitignore'
+      - '.github/workflows/**'
   workflow_dispatch:
     inputs:
       action:
@@ -57,6 +58,24 @@ jobs:
       if: github.event_name == 'push' || github.event.inputs.action == 'deploy'
       working-directory: ./terraform
       run: terraform apply -auto-approve
+
+    - name: Cleanup Kubernetes Resources (Only when destroying)
+      if: github.event.inputs.action == 'destroy'
+      run: |
+        aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+        
+        # Delete services first (this removes LoadBalancers, Target Groups, Security Groups)
+        kubectl delete service mario-service --ignore-not-found=true
+        echo "Waiting for LoadBalancer and associated resources to be deleted..."
+        sleep 90
+        
+        # Then delete remaining resources
+        kubectl delete -f k8s-manifests/ --ignore-not-found=true
+        
+        # Verify LoadBalancer deletion
+        echo "Checking for remaining LoadBalancers..."
+        aws elbv2 describe-load-balancers --region ${{ env.AWS_REGION }} --query 'LoadBalancers[?contains(LoadBalancerName, `k8s`) || contains(Tags[?Key==`kubernetes.io/cluster/MARIO_EKS_CLOUD`].Value, `owned`)].LoadBalancerArn' --output text || true
+      continue-on-error: true
 
     - name: Terraform Destroy
       if: github.event.inputs.action == 'destroy'
