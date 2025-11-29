@@ -175,11 +175,11 @@ Customize deployment in `terraform/variables.tf`:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `aws_region` | AWS region | `ap-south-1` |
-| `cluster_name` | EKS cluster name | `EKS_CLOUD` |
-| `instance_types` | EC2 instance types | `["t3.medium"]` |
-| `desired_capacity` | Desired worker nodes | `2` |
-| `max_capacity` | Maximum worker nodes | `3` |
+| `aws_region` | AWS region | `eu-central-1` |
+| `cluster_name` | EKS cluster name | `Mario_EKS_CLOUD` |
+| `instance_types` | EC2 instance types | `["t2.micro", "t3.medium"]` |
+| `desired_capacity` | Desired worker nodes | `1` |
+| `max_capacity` | Maximum worker nodes | `2` |
 | `min_capacity` | Minimum worker nodes | `1` |
 
 ### Kubernetes Configuration
@@ -187,6 +187,65 @@ Customize deployment in `terraform/variables.tf`:
 - **Resources**: CPU and memory limits configured
 - **Health Checks**: Liveness and readiness probes
 - **Load Balancer**: AWS Network Load Balancer
+
+## 🌐 Accessing Super Mario Application
+
+### After Deployment Completes:
+
+1. **Get the LoadBalancer URL:**
+```bash
+aws eks update-kubeconfig --name EKS_CLOUD --region eu-central-1
+kubectl get service mario-service
+```
+
+2. **Find the EXTERNAL-IP:**
+```
+NAME            TYPE           CLUSTER-IP      EXTERNAL-IP                                   PORT(S)
+mario-service   LoadBalancer   10.100.xx.xx    a1b2c3d4e5f6-123456789.eu-central-1.elb.amazonaws.com   80:30000/TCP
+```
+
+3. **Access Super Mario:**
+- Copy the EXTERNAL-IP URL
+- Open in your browser: `http://a1b2c3d4e5f6-123456789.eu-central-1.elb.amazonaws.com`
+- Wait 2-3 minutes for LoadBalancer to be ready
+
+### Alternative Access Methods:
+
+**Quick Access (No LoadBalancer needed):**
+```bash
+# 1. Connect to EKS
+aws eks update-kubeconfig --name EKS_CLOUD --region eu-central-1
+
+# 2. Check if pods are running
+kubectl get pods -l app=mario
+
+# 3. Port forward to access locally
+kubectl port-forward service/mario-service 8080:80
+
+# 4. Open browser to http://localhost:8080
+```
+
+**Direct Pod Access:**
+```bash
+# Get pod name and port forward directly
+kubectl get pods -l app=mario
+kubectl port-forward pod/mario-deployment-xxxxx 8080:80
+```
+
+**NodePort Service (Alternative):**
+```bash
+# Change service to NodePort temporarily
+kubectl patch service mario-service -p '{"spec":{"type":"NodePort"}}'
+kubectl get service mario-service
+kubectl get nodes -o wide
+# Access via NodeIP:NodePort
+```
+
+**Check Application Status:**
+```bash
+kubectl get pods -l app=mario
+kubectl logs -l app=mario
+```
 
 ## 📊 Monitoring & Troubleshooting
 
@@ -206,7 +265,8 @@ kubectl describe pod <pod-name>
 ### Common Issues
 1. **Pods not starting**: Check resource limits and node capacity
 2. **Service not accessible**: Verify security groups and NLB configuration
-3. **Terraform errors**: Ensure AWS permissions and S3 bucket access
+3. **LoadBalancer pending**: Wait 2-3 minutes for AWS to provision
+4. **Terraform errors**: Ensure AWS permissions and S3 bucket access
 
 ## 🧹 Cleanup
 
@@ -240,9 +300,6 @@ terraform destroy
 3. Make your changes
 4. Submit a pull request
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
 
 ## 👨‍💻 Author
 

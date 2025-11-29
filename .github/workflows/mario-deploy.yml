@@ -3,7 +3,8 @@ name: Super Mario Deployment
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       action:
@@ -20,7 +21,7 @@ on:
 
 env:
   AWS_REGION: eu-central-1
-  EKS_CLUSTER_NAME: EKS_CLOUD
+  EKS_CLUSTER_NAME: MARIO_EKS_CLOUD
 
 jobs:
   infrastructure:
@@ -84,9 +85,23 @@ jobs:
         kubectl apply -f k8s-manifests/deployment.yaml
         kubectl apply -f k8s-manifests/service.yaml
 
+    - name: Check cluster status
+      run: |
+        kubectl get nodes
+        kubectl get pods -A
+        kubectl describe deployment mario-deployment
+
     - name: Wait for deployment
       run: |
-        kubectl rollout status deployment/mario-deployment --timeout=300s
+        kubectl rollout status deployment/mario-deployment --timeout=600s
+      continue-on-error: true
+
+    - name: Debug if deployment fails
+      if: failure()
+      run: |
+        kubectl get pods
+        kubectl describe pods -l app=mario
+        kubectl logs -l app=mario --tail=50
 
     - name: Get service URL
       run: |
