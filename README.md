@@ -168,6 +168,92 @@ Handles complete deployment in sequence:
 - **EKS Cluster**: ~15 minutes
 - **App Deployment**: ~2-3 minutes
 
+## 🏗️ AWS Services Deployed
+
+This Terraform configuration deploys the following AWS services:
+
+### 1. Amazon EKS (Elastic Kubernetes Service)
+- **Resource**: `aws_eks_cluster.eks_cluster`
+- **Name**: `MARIO_EKS_CLOUD`
+- **Purpose**: Managed Kubernetes control plane
+- **Access**: AWS Console → EKS → Clusters → MARIO_EKS_CLOUD
+- **Features**: Auto-scaling, security patches, high availability
+
+### 2. EKS Node Group
+- **Resource**: `aws_eks_node_group.eks_node_group`
+- **Name**: `Node-cloud`
+- **Purpose**: Managed worker nodes for running pods
+- **Access**: AWS Console → EKS → Clusters → MARIO_EKS_CLOUD → Compute → Node groups
+- **Instance Type**: t3.small (configurable)
+- **Scaling**: 1-3 nodes (configurable)
+
+### 3. EC2 Instances
+- **Resource**: Auto-created by EKS Node Group
+- **Type**: t3.small
+- **Purpose**: Worker nodes running Kubernetes pods
+- **Access**: AWS Console → EC2 → Instances
+- **Tags**: kubernetes.io/cluster/MARIO_EKS_CLOUD
+
+### 4. IAM Roles & Policies
+- **EKS Cluster Role**: `MARIO_EKS_CLOUD-cluster-role`
+  - Policy: AmazonEKSClusterPolicy
+  - Access: AWS Console → IAM → Roles
+- **Node Group Role**: `MARIO_EKS_CLOUD-node-group-role`
+  - Policies: AmazonEKSWorkerNodePolicy, AmazonEKS_CNI_Policy, AmazonEC2ContainerRegistryReadOnly
+  - Access: AWS Console → IAM → Roles
+
+### 5. VPC & Networking (Existing)
+- **Resource**: Uses default VPC
+- **Subnets**: Auto-discovered public subnets
+- **Access**: AWS Console → VPC → Your VPCs
+- **Security Groups**: Auto-created by EKS
+
+### 6. Load Balancer (Created by Kubernetes)
+- **Type**: Network Load Balancer (NLB)
+- **Purpose**: External access to Super Mario application
+- **Access**: AWS Console → EC2 → Load Balancers
+- **Created by**: mario-service LoadBalancer type
+
+### 7. S3 Bucket (Backend)
+- **Name**: `mario12-tfstate-bucket`
+- **Purpose**: Terraform state storage
+- **Access**: AWS Console → S3 → Buckets
+- **Features**: Versioning enabled, encryption
+
+### 💰 Cost Estimation
+| Service | Instance/Type | Monthly Cost (approx.) |
+|---------|---------------|------------------------|
+| EKS Cluster | Control Plane | $73 |
+| EC2 Instance | t3.small | $15-20 |
+| Load Balancer | NLB | $16-25 |
+| S3 Storage | State files | <$1 |
+| **Total** | | **~$105-120/month** |
+
+### 🔍 Monitoring & Access
+
+**View All Resources:**
+```bash
+# List EKS clusters
+aws eks list-clusters --region eu-central-1
+
+# Describe cluster
+aws eks describe-cluster --name MARIO_EKS_CLOUD --region eu-central-1
+
+# List EC2 instances
+aws ec2 describe-instances --filters "Name=tag:kubernetes.io/cluster/MARIO_EKS_CLOUD,Values=owned" --region eu-central-1
+
+# List load balancers
+aws elbv2 describe-load-balancers --region eu-central-1
+```
+
+**AWS Console Navigation:**
+1. **EKS**: Services → Elastic Kubernetes Service
+2. **EC2**: Services → EC2 → Instances
+3. **IAM**: Services → IAM → Roles
+4. **VPC**: Services → VPC
+5. **Load Balancers**: Services → EC2 → Load Balancers
+6. **S3**: Services → S3
+
 ## ⚙️ Configuration
 
 ### Terraform Variables
@@ -194,7 +280,7 @@ Customize deployment in `terraform/variables.tf`:
 
 1. **Get the LoadBalancer URL:**
 ```bash
-aws eks update-kubeconfig --name EKS_CLOUD --region eu-central-1
+aws eks update-kubeconfig --name MARIO_EKS_CLOUD --region eu-central-1
 kubectl get service mario-service
 ```
 
@@ -214,7 +300,7 @@ mario-service   LoadBalancer   10.100.xx.xx    a1b2c3d4e5f6-123456789.eu-central
 **Quick Access (No LoadBalancer needed):**
 ```bash
 # 1. Connect to EKS
-aws eks update-kubeconfig --name EKS_CLOUD --region eu-central-1
+aws eks update-kubeconfig --name MARIO_EKS_CLOUD --region eu-central-1
 
 # 2. Check if pods are running
 kubectl get pods -l app=mario
@@ -230,6 +316,17 @@ kubectl port-forward service/mario-service 8080:80
 # Get pod name and port forward directly
 kubectl get pods -l app=mario
 kubectl port-forward pod/mario-deployment-xxxxx 8080:80
+```
+
+**Using Lens IDE (Recommended):**
+```bash
+# 1. Connect to EKS cluster
+aws eks update-kubeconfig --name MARIO_EKS_CLOUD --region eu-central-1
+
+# 2. Open Lens IDE and connect to cluster
+# 3. Navigate to: Networking >> Services >> mario-service
+# 4. Click "Port Forward" button
+# 5. Access Super Mario at http://localhost:8080
 ```
 
 **NodePort Service (Alternative):**
