@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region for resources"
   type        = string
-  default     = "ap-south-1"
+  default     = "eu-central-1"
 }
 
 variable "environment" {
@@ -25,19 +25,19 @@ variable "node_group_name" {
 variable "instance_types" {
   description = "EC2 instance types for worker nodes"
   type        = list(string)
-  default     = ["t3.medium"]
+  default     = ["t2.micro"]
 }
 
 variable "desired_capacity" {
   description = "Desired number of worker nodes"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "max_capacity" {
   description = "Maximum number of worker nodes"
   type        = number
-  default     = 3
+  default     = 2
 }
 
 variable "min_capacity" {

@@ -60,7 +60,7 @@ deploy-SuperMario-on-K8s-with-terraform/
 │   ├── deployment.yaml          # Super Mario deployment
 │   └── service.yaml             # LoadBalancer service
 ├── .github/workflows/           # CI/CD pipeline
-│   └── deploy.yml               # GitHub Actions workflow
+│   └── mario-deployment.yml     # Single workflow for deploy/destroy
 └── README.md                    # Project documentation
 ```
 
@@ -96,20 +96,33 @@ aws configure
 # Enter your AWS Access Key ID, Secret Access Key, and region
 ```
 
-### 3. Update Backend Configuration
-Edit `terraform/backend.tf` with your S3 bucket details:
-```hcl
-terraform {
-  backend "s3" {
-    bucket = "your-terraform-state-bucket"
-    key    = "eks/terraform.tfstate"
-    region = "your-region"
-  }
-}
+### 3. **FIRST STEP: Create S3 Bucket for Terraform State**
+⚠️ **This must be done before any Terraform operations!**
+
+**Windows:**
+```cmd
+setup-backend.bat
 ```
 
-### 4. Deploy with GitHub Actions
-Push to main branch to trigger automated deployment, or deploy manually (see below).
+**Linux/Mac:**
+```bash
+chmod +x setup-backend.sh
+./setup-backend.sh
+```
+
+**Or create manually:**
+```bash
+aws s3api create-bucket --bucket mario12-tfstate-bucket --region eu-central-1 --create-bucket-configuration LocationConstraint=eu-central-1
+aws s3api put-bucket-versioning --bucket mario12-tfstate-bucket --versioning-configuration Status=Enabled
+```
+
+### 4. Deploy Super Mario
+**Option 1 - Automatic:**
+- Push to main branch → Auto-deploys everything
+
+**Option 2 - Manual:**
+- Go to GitHub Actions → "Super Mario Deployment"
+- Choose "deploy" or "destroy" (type "DESTROY" to confirm)
 
 ## 🛠️ Manual Deployment
 
@@ -140,17 +153,20 @@ kubectl get service mario-service
 
 ## 🔄 CI/CD Pipeline
 
-The GitHub Actions workflow automatically:
+### Single Workflow (`mario-deployment.yml`)
+Handles complete deployment in sequence:
+1. **Infrastructure**: Creates EKS cluster with Terraform
+2. **Application**: Deploys Super Mario to Kubernetes
+3. **Health Check**: Verifies deployment status
 
-1. **Terraform Plan**: Validates infrastructure changes
-2. **Terraform Apply**: Deploys infrastructure (on main branch)
-3. **Kubernetes Deploy**: Applies K8s manifests
-4. **Health Check**: Verifies deployment status
+### Triggers
+- **Automatic**: Push to main branch (full deploy)
+- **Manual**: GitHub Actions with deploy/destroy options
 
-### Workflow Triggers
-- Push to `main` branch (full deployment)
-- Pull requests (plan only)
-- Manual trigger via GitHub UI
+### Deployment Time
+- **Total**: ~15-20 minutes
+- **EKS Cluster**: ~15 minutes
+- **App Deployment**: ~2-3 minutes
 
 ## ⚙️ Configuration
 
@@ -194,13 +210,18 @@ kubectl describe pod <pod-name>
 
 ## 🧹 Cleanup
 
-### Remove Kubernetes Resources
-```bash
-kubectl delete -f k8s-manifests/
-```
+### Option 1: GitHub Actions (Recommended)
+1. Go to GitHub Actions
+2. Run "Super Mario Deployment"
+3. Choose "destroy"
+4. Type "DESTROY" to confirm
 
-### Destroy Infrastructure
+### Option 2: Manual Cleanup
 ```bash
+# Remove Kubernetes resources first
+kubectl delete -f k8s-manifests/
+
+# Then destroy infrastructure
 cd terraform
 terraform destroy
 ```
