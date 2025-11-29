@@ -1,4 +1,4 @@
-# 🚀 Super Mario on AWS EKS with Terraform & GitHub Actions
+# 🚀 Super Mario on AWS EKS with Terraform & GitHub Actions - By Donatus D. Dzissah
 
 Deploy the legendary Super Mario game on Amazon EKS using Infrastructure as Code (Terraform) and automated CI/CD with GitHub Actions.
 
@@ -25,6 +25,24 @@ This project demonstrates modern DevOps practices by deploying a containerized S
 - **Container Orchestration**: Kubernetes on Amazon EKS
 - **CI/CD Automation**: GitHub Actions for automated deployments
 - **Best Practices**: Security, scalability, and monitoring
+
+## 🔄 Use as Template for Any Application
+
+**This setup is a reusable EKS deployment template!** You can deploy any Docker image or Kubernetes application with minimal modifications.
+
+### 📖 Complete Template Guide
+**👉 See [TEMPLATE-USAGE.md](./TEMPLATE-USAGE.md) for detailed instructions on:**
+- What's reusable vs. what needs customization
+- Step-by-step conversion guide for your application
+- Examples for web apps, APIs, microservices, and databases
+- Advanced configurations and multi-environment setups
+
+### 🎯 Perfect For:
+- **Web Applications** (React, Angular, Vue)
+- **Backend APIs** (Node.js, Python, Java, Go)
+- **Microservices** architectures
+- **Databases** (PostgreSQL, MongoDB, Redis)
+- **Any Dockerized Application**
 
 ## 🏗️ Architecture
 
@@ -90,10 +108,24 @@ git clone https://github.com/Getdzidon/deploy-SuperMario-on-K8s-with-terraform.g
 cd deploy-SuperMario-on-K8s-with-terraform
 ```
 
-### 2. Configure AWS Credentials
+### 2. Setup AWS CLI and IAM User
+
+**📖 Complete AWS Setup Guide**
+**👉 See [AWS-SETUP.md](./AWS-SETUP.md) for detailed instructions on:**
+- Creating IAM user with proper permissions
+- Installing AWS CLI on Windows/Linux/Mac
+- Configuring credentials and profiles
+- Security best practices
+- Troubleshooting common issues
+
+**Quick Setup:**
 ```bash
+# 1. Create IAM user 'terraform-user' via AWS Console
+# 2. Install AWS CLI
+# 3. Configure credentials
 aws configure
-# Enter your AWS Access Key ID, Secret Access Key, and region
+# 4. Verify setup
+aws sts get-caller-identity
 ```
 
 ### 3. **FIRST STEP: Create S3 Bucket for Terraform State**
