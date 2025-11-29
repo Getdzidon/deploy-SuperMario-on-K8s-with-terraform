@@ -13,19 +13,19 @@ variable "environment" {
 variable "cluster_name" {
   description = "EKS cluster name"
   type        = string
-  default     = "EKS_CLOUD"
+  default     = "MARIO_EKS_CLOUD"
 }
 
 variable "node_group_name" {
   description = "EKS node group name"
   type        = string
-  default     = "Node-cloud"
+  default     = "Mario-Node-cloud"
 }
 
 variable "instance_types" {
   description = "EC2 instance types for worker nodes"
   type        = list(string)
-  default     = ["t2.micro"]
+  default     = ["t3.small"]
 }
 
 variable "desired_capacity" {

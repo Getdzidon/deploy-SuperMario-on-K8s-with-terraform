@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
-  name               = "eks-cluster-cloud"
+  name               = "${var.cluster_name}-cluster-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
@@ -49,7 +49,7 @@ resource "aws_eks_cluster" "eks_cluster" {
 
 # IAM Role for EKS Node Group
 resource "aws_iam_role" "eks_node_group_role" {
-  name = "eks-node-group-cloud"
+  name = "${var.cluster_name}-node-group-role"
 
   assume_role_policy = jsonencode({
     Statement = [{
