@@ -1,4 +1,5 @@
 # 🚀 Super Mario on AWS EKS with Terraform & GitHub Actions - By Donatus D. Dzissah
+# This can be used as a deployment Template. 👉 See [TEMPLATE-USAGE.md](./TEMPLATE-USAGE.md) for detailed instructions
 
 Deploy the legendary Super Mario game on Amazon EKS using Infrastructure as Code (Terraform) and automated CI/CD with GitHub Actions.
 
@@ -36,6 +37,13 @@ This project demonstrates modern DevOps practices by deploying a containerized S
 - Step-by-step conversion guide for your application
 - Examples for web apps, APIs, microservices, and databases
 - Advanced configurations and multi-environment setups
+
+### 🌐 DNS & SSL Setup
+**👉 See [DNS-SSL-SETUP.md](./DNS-SSL-SETUP.md) for:**
+- Custom domain configuration with Route 53
+- SSL certificates with AWS Certificate Manager
+- Application Load Balancer with Ingress
+- HTTPS redirect and security best practices
 
 ### 🎯 Perfect For:
 - **Web Applications** (React, Angular, Vue)

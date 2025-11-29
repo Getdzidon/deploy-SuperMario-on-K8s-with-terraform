@@ -175,10 +175,18 @@ terraform/
 ```
 
 ### Custom Domain & SSL
-Enable LoadBalancer controller and add ingress:
-1. Uncomment LoadBalancer configuration in `terraform/loadbalancer.tf`
-2. Add ingress manifests for custom domains
-3. Configure SSL certificates with AWS Certificate Manager
+**📖 Complete DNS & SSL Guide**
+**👉 See [DNS-SSL-SETUP.md](./DNS-SSL-SETUP.md) for detailed instructions on:**
+- Setting up Route 53 DNS with custom domains
+- Configuring SSL certificates with AWS Certificate Manager
+- Creating Application Load Balancer with Ingress
+- Domain validation and troubleshooting
+
+**Quick Setup:**
+1. Enable LoadBalancer controller in `terraform.tfvars`
+2. Add domain configuration variables
+3. Deploy Route 53 and ACM resources
+4. Create Kubernetes Ingress for your domain
 
 ## 🚀 Result
 

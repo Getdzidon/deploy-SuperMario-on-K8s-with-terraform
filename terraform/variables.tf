@@ -58,3 +58,22 @@ variable "load_balancer_controller_version" {
   type        = string
   default     = "1.4.4"
 }
+
+# DNS and SSL Configuration (Uncomment when needed)
+# variable "domain_name" {
+#   description = "Root domain name (e.g., example.com)"
+#   type        = string
+#   default     = ""
+# }
+#
+# variable "subdomain" {
+#   description = "Subdomain for the application (e.g., mario)"
+#   type        = string
+#   default     = "app"
+# }
+#
+# variable "create_route53_zone" {
+#   description = "Create Route 53 hosted zone for the domain"
+#   type        = bool
+#   default     = false
+# }

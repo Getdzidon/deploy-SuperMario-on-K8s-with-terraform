@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '*.md'
+      - 'setup-backend.*'
+      - '.gitignore'
   workflow_dispatch:
     inputs:
       action:
