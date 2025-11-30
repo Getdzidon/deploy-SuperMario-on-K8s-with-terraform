@@ -7,9 +7,9 @@ on:
       - main
     paths-ignore:
       - '*.md'
-      - 'setup-backend.*'
       - '.gitignore'
       - '.github/workflows/**'
+      - 'backend-state/**'
   workflow_dispatch:
     inputs:
       action:

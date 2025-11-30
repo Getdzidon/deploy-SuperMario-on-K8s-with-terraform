@@ -1,7 +1,7 @@
 @echo off
 REM Configuration
 set BUCKET_NAME=mario12-tfstate-bucket
-set DYNAMODB_TABLE=terraform-lock
+REM set DYNAMODB_TABLE=terraform-lock
 set REGION=eu-central-1
 
 echo Creating S3 bucket for Terraform state...
